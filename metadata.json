@@ -1,0 +1,6 @@
+{
+  "name": "PANEL & DRIP",
+  "description": "High-end anime resin figures, streetwear, cosplay gear, manga & urban culture storefront.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
