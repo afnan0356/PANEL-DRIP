@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { useShop } from '../context/ShopContext';
 import { Category } from '../types';
 import { RESIN_HIGHLIGHT_IMAGE } from '../data/products';
-import { ArrowUpRight, Crown, Shirt, BookOpen, Scissors, Sparkles, Layers } from 'lucide-react';
+import { ArrowUpRight, Crown, Shirt, BookOpen, Scissors, Sparkles, Layers, Sword, Footprints, Glasses, Ticket } from 'lucide-react';
 
 interface CategoryCardProps {
   id: Category;
@@ -15,9 +15,41 @@ interface CategoryCardProps {
 }
 
 export const CategoriesBanner: React.FC = () => {
-  const { setSelectedCategory, scrollToProductGrid } = useShop();
+  const { setSelectedCategory, scrollToProductGrid, navigateToView } = useShop();
 
   const categories: CategoryCardProps[] = [
+    {
+      id: 'katanas',
+      title: 'Steel & Foam Katanas',
+      subtitle: 'Replica 1045 carbon steel & con-safe foam blades',
+      badge: 'HIGH CARBON STEEL',
+      image: 'https://images.unsplash.com/photo-1595590424283-b8f17842773f?auto=format&fit=crop&w=800&q=80',
+      icon: <Sword className="w-5 h-5 text-emerald-400" />
+    },
+    {
+      id: 'shoes',
+      title: 'Anime Kicks & Cyber Shoes',
+      subtitle: '3M reflective sneakers & elevated platform boots',
+      badge: 'STREET KICKS',
+      image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=800&q=80',
+      icon: <Footprints className="w-5 h-5 text-[#CCFF00]" />
+    },
+    {
+      id: 'glasses',
+      title: 'Gojo Glasses & Cyber Visors',
+      subtitle: 'UV400 titanium shades & anti-blue light gaming frames',
+      badge: 'POLARIZED SHADES',
+      image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
+      icon: <Glasses className="w-5 h-5 text-cyan-400" />
+    },
+    {
+      id: 'gift-cards',
+      title: 'Digital Gift Cards & Vouchers',
+      subtitle: 'Google Play, Apple, Steam, PSN, Xbox, Amazon codes',
+      badge: 'INSTANT E-MAIL CODE',
+      image: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=800&q=80',
+      icon: <Ticket className="w-5 h-5 text-amber-400" />
+    },
     {
       id: 'resin-statues',
       title: '1/7 Resin Statues',
@@ -33,42 +65,15 @@ export const CategoriesBanner: React.FC = () => {
       badge: 'STREET FIT',
       image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
       icon: <Shirt className="w-5 h-5 text-red-400" />
-    },
-    {
-      id: 'bottoms',
-      title: 'Wide-Leg Denim & Cargo',
-      subtitle: 'Japanese vintage wash & techwear trousers',
-      badge: 'BAGGY DENIM',
-      image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80',
-      icon: <Layers className="w-5 h-5 text-cyan-400" />
-    },
-    {
-      id: 'action-figures',
-      title: 'S.H.Figuarts & Nendoroids',
-      subtitle: 'Articulated poseables & chibi figures',
-      badge: 'OFFICIAL LICENSE',
-      image: 'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=800&q=80',
-      icon: <Sparkles className="w-5 h-5 text-purple-400" />
-    },
-    {
-      id: 'cosplay',
-      title: 'Cross-Cosplay & Wigs',
-      subtitle: 'Gender-inclusive costume sets & pre-styled wigs',
-      badge: 'CONVENTION READY',
-      image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
-      icon: <Scissors className="w-5 h-5 text-pink-400" />
-    },
-    {
-      id: 'manga-books',
-      title: 'Manga Box Sets & Artbooks',
-      subtitle: 'Complete volume chests & concept illustration books',
-      badge: 'HARDCOVER',
-      image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-      icon: <BookOpen className="w-5 h-5 text-amber-400" />
     }
   ];
 
   const handleCardClick = (catId: Category) => {
+    if (catId === 'gift-cards') {
+      navigateToView('gift-cards');
+      return;
+    }
+    navigateToView('shop');
     setSelectedCategory(catId);
     scrollToProductGrid();
   };

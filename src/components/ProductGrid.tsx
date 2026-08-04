@@ -24,7 +24,11 @@ export const ProductGrid: React.FC = () => {
 
   const categories: { id: Category; label: string }[] = [
     { id: 'all', label: 'All Items' },
-    { id: 'resin-statues', label: 'Resin Statues' },
+    { id: 'katanas', label: '⚔️ Katanas' },
+    { id: 'shoes', label: '👟 Shoes' },
+    { id: 'glasses', label: '🕶️ Glasses & Shades' },
+    { id: 'gift-cards', label: '🎟️ Digital Gift Cards' },
+    { id: 'resin-statues', label: '1/7 Resin Statues' },
     { id: 'action-figures', label: 'Action Figures' },
     { id: 'streetwear', label: 'Streetwear' },
     { id: 'bottoms', label: 'Denim & Pants' },
@@ -55,16 +59,18 @@ export const ProductGrid: React.FC = () => {
       return false;
     }
 
-    // Search query match (title, subtitle, franchise, tags, subcategory)
+    // Search query match (title, subtitle, franchise, tags, subcategory, description, category)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchTitle = product.title.toLowerCase().includes(q);
       const matchSub = product.subtitle.toLowerCase().includes(q);
       const matchFran = product.franchise.toLowerCase().includes(q);
       const matchTags = product.tags.some((t) => t.toLowerCase().includes(q));
-      const matchCat = product.subcategory.toLowerCase().includes(q);
+      const matchSubcat = product.subcategory.toLowerCase().includes(q);
+      const matchCategory = product.category.toLowerCase().includes(q);
+      const matchDesc = product.description.toLowerCase().includes(q);
 
-      if (!matchTitle && !matchSub && !matchFran && !matchTags && !matchCat) {
+      if (!matchTitle && !matchSub && !matchFran && !matchTags && !matchSubcat && !matchCategory && !matchDesc) {
         return false;
       }
     }
@@ -87,7 +93,7 @@ export const ProductGrid: React.FC = () => {
     setSelectedFranchise('All Franchises');
     setSortBy('featured');
     setAvailabilityFilter('all');
-    setPriceRangeUSD([0, 600]);
+    setPriceRangeUSD([0, 850]);
   };
 
   const hasActiveFilters =
@@ -96,7 +102,7 @@ export const ProductGrid: React.FC = () => {
     selectedFranchise !== 'All Franchises' ||
     availabilityFilter !== 'all' ||
     priceRangeUSD[0] > 0 ||
-    priceRangeUSD[1] < 600;
+    priceRangeUSD[1] < 850;
 
   return (
     <section id="shop-catalog" className="bg-[#0A0A0B] py-12 px-4 sm:px-6 lg:px-8">
@@ -198,7 +204,7 @@ export const ProductGrid: React.FC = () => {
             <input
               type="range"
               min="10"
-              max="600"
+              max="850"
               step="10"
               value={priceRangeUSD[1]}
               onChange={(e) => setPriceRangeUSD([priceRangeUSD[0], Number(e.target.value)])}

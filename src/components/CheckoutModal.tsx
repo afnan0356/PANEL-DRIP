@@ -134,7 +134,10 @@ export const CheckoutModal: React.FC = () => {
       shippingFeeUSD,
       taxUSD,
       totalUSD: grandTotalUSD,
-      estimatedDelivery: '3 - 5 Business Days (Tracked Air)'
+      estimatedDelivery: '3 - 5 Business Days (Tracked Air)',
+      status: 'Processing',
+      trackingNumber: `PD-JP-${Math.floor(10000000 + Math.random() * 90000000)}`,
+      carrier: 'DHL Express Japan / Global Otaku Logistics'
     };
 
     setCompletedOrder(newOrder);

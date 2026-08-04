@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShopProvider } from './context/ShopContext';
+import { ShopProvider, useShop } from './context/ShopContext';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { CategoriesBanner } from './components/CategoriesBanner';
@@ -16,17 +16,50 @@ import { CouponModal } from './components/CouponModal';
 import { OrderTrackingModal } from './components/OrderTrackingModal';
 import { Toast } from './components/Toast';
 
+import { AboutUsPage } from './components/AboutUsPage';
+import { ContactUsPage } from './components/ContactUsPage';
+import { TermsConditionsPage } from './components/TermsConditionsPage';
+import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
+import { GiftCardsPage } from './components/GiftCardsPage';
+import { UserDashboard } from './components/UserDashboard';
+
+const MainContent: React.FC = () => {
+  const { currentView } = useShop();
+
+  switch (currentView) {
+    case 'about':
+      return <AboutUsPage />;
+    case 'contact':
+      return <ContactUsPage />;
+    case 'terms':
+      return <TermsConditionsPage />;
+    case 'privacy':
+      return <PrivacyPolicyPage />;
+    case 'gift-cards':
+      return <GiftCardsPage />;
+    case 'dashboard':
+      return <UserDashboard />;
+    case 'shop':
+    default:
+      return (
+        <>
+          <Hero />
+          <CategoriesBanner />
+          <BundleBuilder />
+          <ProductGrid />
+          <LookbookSection />
+        </>
+      );
+  }
+};
+
 export default function App() {
   return (
     <ShopProvider>
       <div className="min-h-screen bg-[#0A0A0B] text-zinc-100 font-sans selection:bg-[#CCFF00] selection:text-black antialiased">
         <Header />
         <main>
-          <Hero />
-          <CategoriesBanner />
-          <BundleBuilder />
-          <ProductGrid />
-          <LookbookSection />
+          <MainContent />
         </main>
         <Footer />
 

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Sparkles, Mail, ShieldCheck, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Mail, ShieldCheck, HelpCircle, ChevronDown, ChevronUp, FileText, Lock, Info, Ticket, Truck } from 'lucide-react';
+import { useShop } from '../context/ShopContext';
 
 export const Footer: React.FC = () => {
+  const { navigateToView, openOrderTracking, setSelectedCategory, scrollToProductGrid } = useShop();
   const [emailInput, setEmailInput] = useState('');
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -115,28 +117,90 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer Bottom Links & Brand Bar */}
-        <div className="pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#CCFF00] text-black font-black text-sm rounded flex items-center justify-center">
-              P&amp;D
+        {/* Footer Navigation Columns & Brand Bar */}
+        <div className="pt-8 border-t border-zinc-900 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs font-mono">
+          
+          <div className="space-y-3 md:col-span-1">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 bg-[#CCFF00] text-black font-black text-sm rounded flex items-center justify-center">
+                P&amp;D
+              </div>
+              <span className="text-white font-black italic tracking-widest uppercase">PANEL &amp; DRIP</span>
             </div>
-            <span className="text-white font-black italic tracking-widest uppercase">PANEL &amp; DRIP</span>
-            <span className="text-zinc-600">•</span>
-            <span className="text-zinc-500">© 2026 PANEL &amp; DRIP. All Rights Reserved.</span>
+            <p className="text-zinc-500 text-[11px] leading-relaxed">
+              Where anime culture meets high-end streetwear, museum-grade resin statues, replica steel katanas, and instant digital vouchers.
+            </p>
+            <span className="block text-zinc-600 text-[10px]">© 2026 PANEL &amp; DRIP. All Rights Reserved.</span>
           </div>
 
-          <div className="flex items-center gap-4 text-zinc-500 text-[11px]">
-            <a href="#privacy" onClick={(e) => e.preventDefault()} className="hover:text-[#CCFF00]">
-              Privacy Policy
-            </a>
-            <a href="#terms" onClick={(e) => e.preventDefault()} className="hover:text-[#CCFF00]">
-              Terms of Service
-            </a>
-            <a href="#shipping" onClick={(e) => e.preventDefault()} className="hover:text-[#CCFF00]">
-              Resin Shipping Guide
-            </a>
+          <div className="space-y-2">
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px] font-sans">Brand &amp; Story</h4>
+            <ul className="space-y-1.5 text-zinc-400 text-[11px]">
+              <li>
+                <button onClick={() => navigateToView('about')} className="hover:text-[#CCFF00] transition-colors">
+                  • About Us &amp; Our Vision
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigateToView('terms')} className="hover:text-[#CCFF00] transition-colors">
+                  • Terms &amp; Conditions
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigateToView('privacy')} className="hover:text-[#CCFF00] transition-colors">
+                  • Privacy Policy
+                </button>
+              </li>
+            </ul>
           </div>
+
+          <div className="space-y-2">
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px] font-sans">Digital &amp; Collections</h4>
+            <ul className="space-y-1.5 text-zinc-400 text-[11px]">
+              <li>
+                <button onClick={() => navigateToView('gift-cards')} className="hover:text-[#CCFF00] text-amber-400 font-bold transition-colors">
+                  🎟️ Gift Cards &amp; Vouchers
+                </button>
+              </li>
+              <li>
+                <button onClick={() => { navigateToView('shop'); setSelectedCategory('katanas'); scrollToProductGrid(); }} className="hover:text-[#CCFF00] transition-colors">
+                  ⚔️ Replica Katanas
+                </button>
+              </li>
+              <li>
+                <button onClick={() => { navigateToView('shop'); setSelectedCategory('shoes'); scrollToProductGrid(); }} className="hover:text-[#CCFF00] transition-colors">
+                  👟 Streetwear Kicks
+                </button>
+              </li>
+              <li>
+                <button onClick={() => { navigateToView('shop'); setSelectedCategory('glasses'); scrollToProductGrid(); }} className="hover:text-[#CCFF00] transition-colors">
+                  🕶️ Gojo Visors &amp; Glasses
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-2">
+            <h4 className="text-white font-bold uppercase tracking-wider text-[11px] font-sans">Order Help</h4>
+            <ul className="space-y-1.5 text-zinc-400 text-[11px]">
+              <li>
+                <button onClick={() => openOrderTracking()} className="hover:text-[#CCFF00] text-[#CCFF00] font-bold transition-colors flex items-center gap-1">
+                  <Truck className="w-3 h-3" /> Track Order Status
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigateToView('terms')} className="hover:text-[#CCFF00] transition-colors">
+                  • Refund &amp; Returns Policy
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navigateToView('contact')} className="hover:text-[#CCFF00] transition-colors">
+                  • Contact Vault Support
+                </button>
+              </li>
+            </ul>
+          </div>
+
         </div>
       </div>
     </footer>

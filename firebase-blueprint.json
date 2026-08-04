@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and account information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "username": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "format": "email", "maxLength": 200 },
+        "avatar": { "type": "string", "maxLength": 500 },
+        "loyaltyPoints": { "type": "number" },
+        "membershipTier": { "type": "string", "enum": ["Free", "Silver", "Gold", "Platinum"] },
+        "totalSpentUSD": { "type": "number" },
+        "referralCode": { "type": "string", "maxLength": 50 },
+        "referralCount": { "type": "number" },
+        "referralEarningsPoints": { "type": "number" },
+        "dailyStreak": { "type": "number" },
+        "lastCheckInDate": { "type": "string" },
+        "spinWheelLastUsed": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase order",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string" },
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotalUSD": { "type": "number" },
+        "discountUSD": { "type": "number" },
+        "totalUSD": { "type": "number" },
+        "status": { "type": "string", "enum": ["Order Placed", "Processing", "Packed", "Shipped", "Delivered"] },
+        "trackingNumber": { "type": "string" },
+        "carrier": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["orderId", "userId", "items", "totalUSD", "status"]
+    },
+    "ProductReview": {
+      "title": "ProductReview",
+      "description": "Customer product review",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string", "maxLength": 100 },
+        "userBadge": { "type": "string", "maxLength": 50 },
+        "rating": { "type": "number" },
+        "title": { "type": "string", "maxLength": 150 },
+        "comment": { "type": "string", "maxLength": 1000 },
+        "helpfulCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "productId", "userId", "userName", "rating", "title", "comment"]
+    },
+    "Wishlist": {
+      "title": "Wishlist",
+      "description": "User saved wishlist items",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "productIds": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "productIds"]
+    },
+    "TestConnection": {
+      "title": "TestConnection",
+      "description": "Ping test connection for client connectivity verification",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer purchase orders"
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/ProductReview" },
+      "description": "User reviews for products"
+    },
+    "/wishlists/{userId}": {
+      "schema": { "$ref": "#/entities/Wishlist" },
+      "description": "User saved wishlist items"
+    },
+    "/test/connection": {
+      "schema": { "$ref": "#/entities/TestConnection" },
+      "description": "Test doc to verify server connection"
+    }
+  }
+}

@@ -5,10 +5,17 @@ export type Category =
   | 'streetwear'
   | 'bottoms'
   | 'cosplay'
+  | 'katanas'
+  | 'shoes'
+  | 'glasses'
+  | 'gift-cards'
+  | 'mystery-box'
   | 'manga-books'
   | 'accessories-decor';
 
 export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY';
+
+export type MembershipTier = 'Free' | 'Silver' | 'Gold' | 'Platinum';
 
 export interface ProductReview {
   id: string;
@@ -20,6 +27,9 @@ export interface ProductReview {
   title: string;
   comment: string;
   helpfulCount: number;
+  unhelpfulCount?: number;
+  images?: string[];
+  isVerifiedPurchase?: boolean;
 }
 
 export interface ProductSpec {
@@ -27,13 +37,24 @@ export interface ProductSpec {
   value: string;
 }
 
+export type AppView = 'shop' | 'about' | 'contact' | 'terms' | 'privacy' | 'gift-cards' | 'dashboard' | 'mystery-box';
+
+export interface MysteryDropContent {
+  id: string;
+  name: string;
+  rarity: 'Common' | 'Rare' | 'Epic' | 'Legendary';
+  valueUSD: number;
+  image: string;
+  chancePercent: number;
+}
+
 export interface Product {
   id: string;
   title: string;
-  subtitle: string; // Franchise or sub-brand (e.g. "Cyber-Punk Neo-Tokyo", "Demon Blade")
+  subtitle: string; // Franchise or sub-brand
   category: Category;
-  subcategory: string; // e.g., "1/7 Scale Resin", "S.H.Figuarts", "Oversized Hoodie", "Cross-Cosplay Set"
-  franchise: string; // e.g. "Neon Genesis", "Chainsaw Devil", "Jujutsu High", "Cyberpunk", "Original Studio"
+  subcategory: string;
+  franchise: string;
   priceUSD: number;
   originalPriceUSD?: number;
   rating: number;
@@ -41,10 +62,14 @@ export interface Product {
   images: string[];
   description: string;
   specs: ProductSpec[];
-  sizes?: string[]; // e.g. ['S', 'M', 'L', 'XL', '2XL'] for apparel, or ['Standard', 'Ex Statue Edition']
+  sizes?: string[];
   isPreOrder?: boolean;
   preOrderDate?: string;
   isLimitedResin?: boolean;
+  isDigital?: boolean;
+  isMysteryBox?: boolean;
+  guaranteedMinValueUSD?: number;
+  possibleDrops?: MysteryDropContent[];
   stockCount: number;
   editionLimit?: number;
   tags: string[];
@@ -55,6 +80,73 @@ export interface CartItem {
   product: Product;
   selectedSize?: string;
   quantity: number;
+  isFreeGift?: boolean;
+}
+
+export interface SavedAddress {
+  id: string;
+  label: string;
+  fullName: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  isDefault?: boolean;
+}
+
+export interface WishlistCollection {
+  id: string;
+  name: string;
+  description?: string;
+  productIds: string[];
+}
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  username?: string;
+  email: string;
+  avatar: string;
+  role?: string;
+  loyaltyPoints: number;
+  membershipTier: MembershipTier;
+  totalSpentUSD: number;
+  referralCode: string;
+  referralCount: number;
+  referralEarningsPoints: number;
+  dailyStreak: number;
+  lastCheckInDate: string | null; // ISO format 'YYYY-MM-DD'
+  spinWheelLastUsed: string | null;
+  createdAt?: string;
+  lastLoginAt?: string;
+  emailVerified?: boolean;
+  savedAddresses: SavedAddress[];
+  giftRewardsHistory: {
+    id: string;
+    title: string;
+    date: string;
+    pointsSpent: number;
+    code?: string;
+  }[];
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  date: string;
+  read: boolean;
+  type: 'order' | 'deal' | 'points' | 'wishlist' | 'system';
+  linkView?: AppView;
+}
+
+export interface FreeGiftItem {
+  id: string;
+  name: string;
+  tier: 1 | 2 | 3;
+  minSpendUSD: number;
+  image: string;
+  originalValueUSD: number;
 }
 
 export interface OrderDetails {
@@ -77,4 +169,8 @@ export interface OrderDetails {
   taxUSD: number;
   totalUSD: number;
   estimatedDelivery: string;
+  status: 'Order Placed' | 'Processing' | 'Packed' | 'Shipped' | 'Delivered';
+  trackingNumber: string;
+  carrier: string;
 }
+

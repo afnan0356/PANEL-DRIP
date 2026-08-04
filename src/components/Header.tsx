@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
 import {
   ShoppingBag,
@@ -11,9 +11,26 @@ import {
   Ruler,
   PackageCheck,
   Ticket,
-  Truck
+  Truck,
+  Info,
+  ShieldCheck,
+  FileText,
+  Lock,
+  Sword,
+  Footprints,
+  Glasses,
+  User,
+  Bell,
+  Flame,
+  Gift,
+  Crown,
+  Box,
+  LogOut,
+  Settings,
+  Award
 } from 'lucide-react';
-import { Category, Currency } from '../types';
+import { Category, Currency, AppView } from '../types';
+import { SmartSearchModal } from './SmartSearchModal';
 
 export const Header: React.FC = () => {
   const {
@@ -31,28 +48,63 @@ export const Header: React.FC = () => {
     searchQuery,
     setSearchQuery,
     orders,
-    scrollToProductGrid
+    scrollToProductGrid,
+    currentView,
+    navigateToView,
+    dashboardTab,
+    setDashboardTab,
+    user,
+    openAuthModal,
+    loginWithGoogle,
+    logoutUser,
+    notifications,
+    unreadNotificationCount,
+    markAllNotificationsAsRead,
+    setIsSpinWheelOpen,
+    setIsDailyCheckInOpen
   } = useShop();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showOrderHistory, setShowOrderHistory] = useState(false);
+  const [isSmartSearchOpen, setIsSmartSearchOpen] = useState(false);
+  const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const totalCartItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const categoriesList: { id: Category; label: string }[] = [
     { id: 'all', label: 'All Catalog' },
-    { id: 'resin-statues', label: 'Figures & Statues' },
-    { id: 'action-figures', label: 'Action Figures' },
-    { id: 'streetwear', label: 'Streetwear Fits' },
-    { id: 'bottoms', label: 'Denim & Pants' },
-    { id: 'cosplay', label: 'Cosplay & Wigs' },
-    { id: 'manga-books', label: 'Manga & Books' },
-    { id: 'accessories-decor', label: 'Accessories' }
+    { id: 'mystery-box', label: '🎁 Mystery Boxes' },
+    { id: 'katanas', label: '⚔️ Katanas' },
+    { id: 'shoes', label: '👟 Shoes' },
+    { id: 'glasses', label: '🕶️ Glasses' },
+    { id: 'gift-cards', label: '🎟️ Gift Cards' },
+    { id: 'resin-statues', label: '1/7 Resin' },
+    { id: 'action-figures', label: 'Figures' },
+    { id: 'streetwear', label: 'Streetwear' },
+    { id: 'cosplay', label: 'Cosplay' }
   ];
 
   const currencies: Currency[] = ['USD', 'EUR', 'GBP', 'JPY'];
 
   const handleCategorySelect = (catId: Category) => {
+    if (catId === 'gift-cards') {
+      navigateToView('gift-cards');
+      setMobileMenuOpen(false);
+      return;
+    }
+    navigateToView('shop');
     setSelectedCategory(catId);
     setMobileMenuOpen(false);
     scrollToProductGrid();
@@ -63,7 +115,7 @@ export const Header: React.FC = () => {
       {/* Top Announcement Marquee Bar */}
       <div className="bg-[#CCFF00] text-black px-4 py-1.5 text-xs text-center font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2 overflow-hidden shadow-sm">
         <Sparkles className="w-3.5 h-3.5 text-black animate-pulse" />
-        <span>AUTHENTIC OFFICIAL MERCHANDISE ONLY // LIMITED DROP: CYBER-VALKYRIE 1/7 RESIN</span>
+        <span>AUTHENTIC OFFICIAL MERCHANDISE ONLY // MYSTERY BOXES & 1/7 RESIN DROPS LIVE</span>
         <span className="hidden md:inline font-mono">| USE CODE <strong className="underline">DRIP10</strong> FOR 10% OFF</span>
         <Sparkles className="w-3.5 h-3.5 text-black animate-pulse hidden sm:inline" />
       </div>
@@ -82,275 +134,452 @@ export const Header: React.FC = () => {
           </button>
 
           {/* Logo & Brand Name */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSelectedCategory('all')}>
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#CCFF00] text-black font-black text-xl italic rounded flex items-center justify-center tracking-tighter shadow-md">
-              P&amp;D
-            </div>
-            <div>
-              <span className="text-xl sm:text-2xl font-black italic tracking-tighter text-white uppercase font-sans">
-                PANEL <span className="text-[#CCFF00]">&amp;</span> DRIP
-              </span>
-              <span className="block text-[9px] font-mono tracking-[0.2em] text-zinc-400 uppercase">
-                Streetwear &amp; Collectibles Archive
-              </span>
-            </div>
-          </div>
-
-          {/* Desktop Search Bar */}
-          <div className="hidden lg:flex flex-1 max-w-md relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Archive (e.g. Resin, Denim, Figures)..."
-              className="w-full bg-[#0A0A0B] border border-zinc-800 text-sm rounded-full py-2 pl-10 pr-4 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-[#CCFF00] transition-all"
-            />
-            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 hover:text-white"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
-          {/* Action Buttons: Size Guide, Currency, Orders, Wishlist, Cart */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            
-            {/* Coupons Button */}
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsCouponModalOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-full border border-zinc-800 transition-colors font-mono"
-              title="Promo Coupons & Rewards"
+              onClick={() => navigateToView('shop')}
+              className="flex items-center gap-2 group text-left"
             >
-              <Ticket className="w-3.5 h-3.5 text-[#CCFF00]" />
-              <span>Coupons</span>
-            </button>
-
-            {/* Order Tracking Button */}
-            <button
-              onClick={() => openOrderTracking()}
-              className="hidden md:flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-full border border-zinc-800 transition-colors font-mono"
-              title="Track Any Order Status"
-            >
-              <Truck className="w-3.5 h-3.5 text-[#CCFF00]" />
-              <span>Track Order</span>
-            </button>
-
-            {/* Size Guide Button */}
-            <button
-              onClick={() => setIsSizeGuideOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-full border border-zinc-800 transition-colors font-mono"
-              title="Size & Fitting Guide"
-            >
-              <Ruler className="w-3.5 h-3.5 text-[#CCFF00]" />
-              <span>Sizing</span>
-            </button>
-
-            {/* Currency Selector */}
-            <div className="relative group">
-              <button className="flex items-center gap-1 text-xs font-mono font-semibold text-zinc-300 bg-zinc-900 hover:bg-zinc-800 px-2.5 py-1.5 rounded-full border border-zinc-800 transition-colors">
-                <span>{currency}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
-              </button>
-              <div className="absolute right-0 mt-1 w-24 bg-[#0E0E10] border border-zinc-800 rounded-lg shadow-xl py-1 hidden group-hover:block z-50">
-                {currencies.map((curr) => (
-                  <button
-                    key={curr}
-                    onClick={() => setCurrency(curr)}
-                    className={`w-full text-left px-3 py-1.5 text-xs font-mono transition-colors ${
-                      currency === curr ? 'text-[#CCFF00] font-bold bg-zinc-800' : 'text-zinc-300 hover:bg-zinc-800/60'
-                    }`}
-                  >
-                    {curr}
-                  </button>
-                ))}
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#CCFF00] to-amber-500 flex items-center justify-center text-black font-black text-xl tracking-tighter group-hover:scale-105 transition-transform shadow-lg shadow-[#CCFF00]/20">
+                P&D
               </div>
+              <div className="hidden sm:block">
+                <span className="text-lg sm:text-xl font-black font-mono tracking-tight text-white block leading-none">
+                  PANEL & DRIP
+                </span>
+                <span className="text-[10px] text-amber-400 font-bold uppercase tracking-widest block mt-0.5">
+                  Otaku Vault & Streetwear
+                </span>
+              </div>
+            </button>
+          </div>
+
+          {/* Search Trigger Input Bar */}
+          <div className="hidden md:flex flex-1 max-w-md mx-4">
+            <button
+              onClick={() => setIsSmartSearchOpen(true)}
+              className="w-full py-2 px-4 bg-zinc-900 border border-zinc-800 hover:border-amber-400/50 rounded-xl text-xs text-zinc-400 flex items-center justify-between transition-all"
+            >
+              <span className="flex items-center gap-2">
+                <Search className="w-4 h-4 text-amber-400" /> Search Anime, Katana, Resin, Mystery Box...
+              </span>
+              <kbd className="px-2 py-0.5 bg-zinc-800 rounded text-[10px] text-zinc-400 font-mono">⌘K</kbd>
+            </button>
+          </div>
+
+          {/* Right Utilities & Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Rewards Buttons */}
+            <button
+              onClick={() => setIsDailyCheckInOpen(true)}
+              className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-400 text-xs font-bold transition-all"
+            >
+              <Flame className="w-4 h-4 text-orange-400 fill-orange-400" /> Daily Bonus
+            </button>
+
+            <button
+              onClick={() => setIsSpinWheelOpen(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-amber-300 text-xs font-bold transition-all"
+            >
+              <Sparkles className="w-4 h-4 text-amber-400" /> Spin Wheel
+            </button>
+
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={() => setIsNotifDropdownOpen(!isNotifDropdownOpen)}
+                className="p-2 text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-xl transition-colors relative"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadNotificationCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center">
+                    {unreadNotificationCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown Menu */}
+              {isNotifDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-4 text-xs z-50">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-neutral-800">
+                    <span className="font-bold text-white uppercase font-mono">Notification Center</span>
+                    <button onClick={markAllNotificationsAsRead} className="text-[10px] text-amber-400 hover:underline">
+                      Mark all read
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        className={`p-2.5 rounded-xl border ${
+                          n.read ? 'bg-neutral-950 border-neutral-800 text-neutral-400' : 'bg-neutral-800 border-amber-500/40 text-white'
+                        }`}
+                      >
+                        <div className="font-bold">{n.title}</div>
+                        <div className="text-[11px] mt-0.5 leading-snug">{n.message}</div>
+                        <div className="text-[9px] text-neutral-500 mt-1">{n.date}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Orders History Toggle */}
-            {orders.length > 0 && (
+            {/* User Account / Profile Dropdown Menu */}
+            <div className="relative" ref={profileMenuRef}>
               <button
-                onClick={() => setShowOrderHistory(!showOrderHistory)}
-                className="relative p-2 rounded-full text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-                title="My Orders"
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className={`p-1.5 sm:px-3 sm:py-1.5 rounded-xl border flex items-center gap-2 transition-all cursor-pointer ${
+                  user
+                    ? currentView === 'dashboard'
+                      ? 'bg-amber-500 text-neutral-950 border-amber-400'
+                      : 'bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-white'
+                    : 'bg-amber-500 hover:bg-amber-400 text-neutral-950 border-amber-400 font-bold text-xs uppercase tracking-wider'
+                }`}
               >
-                <PackageCheck className="w-5 h-5 text-[#CCFF00]" />
-                <span className="absolute -top-1 -right-1 bg-[#CCFF00] text-black text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
-                  {orders.length}
-                </span>
+                {user ? (
+                  <>
+                    <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-lg object-cover" />
+                    <span className="hidden md:inline text-xs font-bold font-mono truncate max-w-[100px]">{user.name}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />
+                  </>
+                ) : (
+                  <>
+                    <User className="w-4 h-4" />
+                    <span className="text-xs font-bold">Account</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-neutral-950" />
+                  </>
+                )}
               </button>
-            )}
 
-            {/* Wishlist Icon */}
+              {/* Profile Dropdown Popup */}
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-2 z-50 text-white animate-in fade-in slide-in-from-top-2 duration-150">
+                  {user ? (
+                    <div className="space-y-1">
+                      {/* User Info Header */}
+                      <div className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 mb-1">
+                        <div className="flex items-center gap-2.5">
+                          <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-xl object-cover border border-amber-500/40" />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold font-mono text-white truncate">{user.name}</div>
+                            <div className="text-[11px] text-amber-400 font-mono font-medium truncate">{user.username || `@${user.name.toLowerCase().replace(/\s+/g, '')}`}</div>
+                          </div>
+                        </div>
+                        <div className="mt-2.5 pt-2 border-t border-neutral-800 flex items-center justify-between text-[11px]">
+                          <span className="text-neutral-400">Loyalty Balance:</span>
+                          <span className="font-bold font-mono text-amber-400 flex items-center gap-1">
+                            <Award className="w-3 h-3 text-amber-400" /> {user.loyaltyPoints} Pts
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Dropdown Navigation Links */}
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigateToView('dashboard');
+                          setDashboardTab('overview');
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
+                      >
+                        <User className="w-4 h-4 text-amber-400" /> My Profile
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigateToView('dashboard');
+                          setDashboardTab('orders');
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <ShoppingBag className="w-4 h-4 text-amber-400" /> My Orders
+                        </span>
+                        <span className="px-1.5 py-0.5 bg-neutral-950 border border-neutral-800 rounded text-[10px] font-mono">{orders.length}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          setIsWishlistOpen(true);
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-lg hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <Heart className="w-4 h-4 text-amber-400" /> Wishlist
+                        </span>
+                        <span className="px-1.5 py-0.5 bg-neutral-950 border border-neutral-800 rounded text-[10px] font-mono">{wishlist.length}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigateToView('dashboard');
+                          setDashboardTab('loyalty');
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
+                      >
+                        <Award className="w-4 h-4 text-amber-400" /> Loyalty Points
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigateToView('dashboard');
+                          setDashboardTab('settings');
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-amber-400" /> Account Settings
+                      </button>
+
+                      <div className="pt-1 mt-1 border-t border-neutral-800">
+                        <button
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            logoutUser();
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-red-400 hover:bg-red-950/40 rounded-lg transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" /> Log Out
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <div className="p-3 bg-neutral-950 rounded-xl border border-neutral-800 mb-1">
+                        <div className="text-xs font-bold text-white uppercase font-mono">Collector Portal</div>
+                        <div className="text-[11px] text-neutral-400 mt-0.5">Sign in to sync orders, points & wishlist</div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          openAuthModal('login');
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-400 hover:bg-neutral-800 rounded-lg transition-colors"
+                      >
+                        <User className="w-4 h-4" /> Sign In
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          openAuthModal('register');
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-white hover:bg-neutral-800 rounded-lg transition-colors"
+                      >
+                        <Crown className="w-4 h-4 text-amber-400" /> Create Account
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          loginWithGoogle();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 rounded-lg transition-colors"
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+                          <path
+                            fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                          />
+                          <path
+                            fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                          />
+                          <path
+                            fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                          />
+                          <path
+                            fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                          />
+                        </svg>
+                        Continue with Google
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Wishlist Button */}
             <button
               onClick={() => setIsWishlistOpen(true)}
-              className="relative p-2 rounded-full text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-              aria-label="Wishlist"
+              className="p-2 text-zinc-300 hover:text-white hover:bg-zinc-900 rounded-xl transition-colors relative"
             >
               <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#CCFF00] text-black text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-amber-400 text-neutral-950 rounded-full text-[9px] font-bold flex items-center justify-center">
                   {wishlist.length}
                 </span>
               )}
             </button>
 
-            {/* Cart Trigger */}
+            {/* Cart Drawer Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative flex items-center gap-2 bg-[#CCFF00] hover:bg-[#bce600] text-black px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95"
-              aria-label="Cart"
+              className="px-3 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-bold text-xs rounded-xl transition-all shadow-lg flex items-center gap-2"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span className="font-mono text-xs font-black">{totalCartItems}</span>
+              <span className="font-mono">{totalCartItems}</span>
             </button>
           </div>
         </div>
 
-        {/* Mobile Search Input */}
-        <div className="lg:hidden pb-3">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Archive..."
-              className="w-full bg-[#0A0A0B] border border-zinc-800 rounded-full pl-9 pr-4 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-[#CCFF00]"
-            />
-            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          </div>
-        </div>
-
-        {/* Categories Bar (Desktop) */}
-        <nav className="hidden lg:flex items-center gap-1 py-2 overflow-x-auto border-t border-zinc-800 text-xs font-bold uppercase tracking-widest text-zinc-400 scrollbar-none">
-          {categoriesList.map((cat) => {
-            const isActive = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleCategorySelect(cat.id)}
-                className={`px-3.5 py-1.5 rounded transition-all ${
-                  isActive
-                    ? 'text-white border-b-2 border-[#CCFF00] pb-1'
-                    : 'hover:text-white transition-colors'
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
+        {/* Category Navigation Bar */}
+        <nav className="hidden lg:flex items-center gap-1 py-2 border-t border-zinc-800/80 text-xs font-bold uppercase font-mono overflow-x-auto scrollbar-none">
+          {categoriesList.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategorySelect(cat.id)}
+              className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
+                selectedCategory === cat.id && currentView === 'shop'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </nav>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Hamburger Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#0E0E10] border-b border-zinc-800 px-4 pt-3 pb-6 space-y-4">
-          <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em] px-2">
-            Browse Categories
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {categoriesList.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategorySelect(cat.id)}
-                className={`text-left px-3 py-2 rounded text-xs font-bold transition-colors ${
-                  selectedCategory === cat.id
-                    ? 'bg-[#CCFF00] text-black font-black'
-                    : 'bg-zinc-900 text-zinc-300 hover:bg-zinc-800'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+        <div className="lg:hidden bg-[#0A0A0B] border-b border-zinc-800 p-4 space-y-5 animate-in slide-in-from-top-2 duration-200">
+          {/* Mobile Search Input */}
+          <button
+            onClick={() => {
+              setIsSmartSearchOpen(true);
+              setMobileMenuOpen(false);
+            }}
+            className="w-full py-2.5 px-4 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-400 flex items-center justify-between"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-amber-400" /> Search 100+ Anime Products...
+            </span>
+            <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-mono">SEARCH</span>
+          </button>
 
-          <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
+          {/* Core App Navigation Views */}
+          <div className="space-y-1 font-mono text-xs font-bold uppercase">
+            <div className="text-[10px] text-zinc-500 tracking-wider mb-1.5">NAVIGATION PAGES</div>
             <button
               onClick={() => {
-                setIsSizeGuideOpen(true);
+                navigateToView('shop');
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-1.5 text-xs text-zinc-300 bg-zinc-900 px-3 py-2 rounded-lg"
+              className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 ${
+                currentView === 'shop' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-zinc-300 hover:bg-zinc-900'
+              }`}
             >
-              <Ruler className="w-4 h-4 text-[#CCFF00]" />
-              <span>Sizing &amp; Fitting Guide</span>
+              <Sparkles className="w-4 h-4 text-amber-400" /> Home / Shop Catalog
+            </button>
+            <button
+              onClick={() => {
+                navigateToView('about');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 ${
+                currentView === 'about' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-zinc-300 hover:bg-zinc-900'
+              }`}
+            >
+              <Info className="w-4 h-4 text-amber-400" /> About Us & Story
+            </button>
+            <button
+              onClick={() => {
+                navigateToView('contact');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 ${
+                currentView === 'contact' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-zinc-300 hover:bg-zinc-900'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4 text-amber-400" /> Contact Us & Support
+            </button>
+            <button
+              onClick={() => {
+                navigateToView('gift-cards');
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 ${
+                currentView === 'gift-cards' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-zinc-300 hover:bg-zinc-900'
+              }`}
+            >
+              <Ticket className="w-4 h-4 text-amber-400" /> Gift Cards & Digital Vouchers
+            </button>
+            <button
+              onClick={() => {
+                if (user) {
+                  navigateToView('dashboard');
+                } else {
+                  openAuthModal('login');
+                }
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 ${
+                currentView === 'dashboard' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'text-zinc-300 hover:bg-zinc-900'
+              }`}
+            >
+              <User className="w-4 h-4 text-amber-400" /> {user ? `Account (${user.name})` : 'Sign In / Register'}
+            </button>
+            <button
+              onClick={() => {
+                openOrderTracking();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full text-left px-3 py-2 text-amber-400 hover:bg-zinc-900 rounded-xl flex items-center gap-2.5"
+            >
+              <Truck className="w-4 h-4" /> Track Order Status
             </button>
           </div>
-        </div>
-      )}
 
-      {/* Orders Modal */}
-      {showOrderHistory && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0E0E10] border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 text-zinc-100 relative max-h-[85vh] overflow-y-auto">
-            <button
-              onClick={() => setShowOrderHistory(false)}
-              className="absolute top-4 right-4 text-zinc-400 hover:text-white"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <h2 className="text-xl font-black font-sans uppercase tracking-wider mb-1 flex items-center gap-2">
-              <PackageCheck className="w-6 h-6 text-[#CCFF00]" /> My Squad Orders ({orders.length})
-            </h2>
-            <p className="text-xs text-zinc-400 mb-6">Recent purchases and tracking status.</p>
+          {/* Categories Grid */}
+          <div className="space-y-1.5 font-mono text-xs">
+            <div className="text-[10px] text-zinc-500 font-bold tracking-wider uppercase">CATEGORIES</div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {categoriesList.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className={`px-3 py-2 rounded-xl text-left font-bold transition-colors text-[11px] truncate ${
+                    selectedCategory === cat.id && currentView === 'shop'
+                      ? 'bg-amber-500 text-neutral-950'
+                      : 'bg-zinc-900 text-zinc-300 hover:text-white'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-            <div className="space-y-4">
-              {orders.map((ord) => (
-                <div key={ord.orderId} className="bg-[#0A0A0B] border border-zinc-800 rounded-xl p-4 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 pb-2">
-                    <div>
-                      <span className="font-mono text-xs text-[#CCFF00] font-bold">{ord.orderId}</span>
-                      <span className="block text-[11px] text-zinc-500">{ord.date}</span>
-                    </div>
-                    <span className="px-2.5 py-1 bg-[#CCFF00] text-black text-[10px] font-mono font-black rounded-full">
-                      Confirmed &amp; Dispatching
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    {ord.items.map((it, idx) => (
-                      <div key={idx} className="flex items-center gap-3 text-xs">
-                        <img
-                          src={it.product.images[0]}
-                          alt={it.product.title}
-                          className="w-10 h-10 object-cover rounded bg-zinc-900"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="flex-1">
-                          <p className="font-semibold text-zinc-200 line-clamp-1">{it.product.title}</p>
-                          <p className="text-[11px] text-zinc-400 font-mono">
-                            Qty: {it.quantity} {it.selectedSize ? `| Option: ${it.selectedSize}` : ''}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-between items-center text-xs font-mono pt-2 border-t border-zinc-900">
-                    <div className="flex items-center gap-2">
-                      <span className="text-zinc-400">Total Paid:</span>
-                      <span className="text-[#CCFF00] font-bold text-sm">${ord.totalUSD.toFixed(2)} USD</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowOrderHistory(false);
-                        openOrderTracking(ord.orderId);
-                      }}
-                      className="bg-[#CCFF00] hover:bg-[#bce600] text-black px-3 py-1.5 rounded-lg text-[11px] font-black uppercase font-mono tracking-wider transition-colors flex items-center gap-1"
-                    >
-                      <Truck className="w-3.5 h-3.5" />
-                      <span>Track Package</span>
-                    </button>
-                  </div>
-                </div>
+          {/* Currency Selector */}
+          <div className="pt-2 border-t border-zinc-800 flex items-center justify-between text-xs font-mono">
+            <span className="text-zinc-400 font-bold uppercase">Currency:</span>
+            <div className="flex items-center gap-1">
+              {currencies.map((curr) => (
+                <button
+                  key={curr}
+                  onClick={() => setCurrency(curr)}
+                  className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-colors ${
+                    currency === curr ? 'bg-amber-500 text-neutral-950' : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  {curr}
+                </button>
               ))}
             </div>
           </div>
         </div>
       )}
+
+      {/* Smart Search Modal */}
+      <SmartSearchModal isOpen={isSmartSearchOpen} onClose={() => setIsSmartSearchOpen(false)} />
     </header>
   );
 };
